@@ -36,6 +36,8 @@ trait TSConfig {
   def asList[T : TypeTag] : List[T] = as[List[T]]
   def asList : List[TSConfig]
 
+  def asMapOf[T : TypeTag] : Map[String,T] = as[Map[String,T]]
+
   def asInt = as[Int]
   def asLong = as[Long]
   def asString = as[String]
