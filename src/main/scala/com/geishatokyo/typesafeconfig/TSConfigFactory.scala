@@ -1,7 +1,7 @@
 package com.geishatokyo.typesafeconfig
 
 import com.typesafe.config.{Config, ConfigFactory}
-import java.io.File
+import java.io.{InputStreamReader, StringReader, InputStream, File}
 import com.geishatokyo.typesafeconfig.impl.{DefaultEnv, TSConfigRoot}
 
 /**
@@ -12,6 +12,7 @@ trait TSConfigFactory {
   def parseFile(path : String) : TSConfig
   def parseFile(file : File) : TSConfig
   def fromConfig(config : Config) : TSConfig
+  def fromStream(stream : InputStream) : TSConfig
 }
 
 object TSConfigFactory extends TSConfigFactory{
@@ -24,6 +25,7 @@ object TSConfigFactory extends TSConfigFactory{
   override def fromConfig(config: Config): TSConfig = defaultFactory.fromConfig(config)
   override def parseFile(path: String): TSConfig = defaultFactory.parseFile(path)
   override def parseFile(file: File): TSConfig = defaultFactory.parseFile(file)
+  override def fromStream(stream: InputStream): TSConfig = defaultFactory.fromStream(stream)
 
   object dflt extends TSConfigFactory{
     override def parseString(str: String): TSConfig = {
@@ -42,6 +44,11 @@ object TSConfigFactory extends TSConfigFactory{
 
     override def fromConfig(config: Config): TSConfig = {
       TSConfigRoot(config)
+    }
+
+    override def fromStream(stream: InputStream): TSConfig = {
+      val conf = ConfigFactory.parseReader(new InputStreamReader(stream))
+      TSConfigRoot(conf)
     }
   }
 
