@@ -105,8 +105,34 @@ class AsTest extends FlatSpec with Matchers {
 
   }
 
+
+  "Map[String,_]" should "be mapped with key,name" in {
+
+    // Map[String,_]の場合,
+    // 変換先のクラスにname,keyいずれかのフィールドが存在する場合、
+    // Mapのkeyにあたる文字列が設定される
+    val conf = TSConfigFactory.parseString(
+      """
+        |db1 : {user : root,password : hoge}
+        |db2 : {key:k2,name:n2,user : root,password : fuga}
+        |db3 : {name : d3,user : root,password : fuga}
+        |db4 : {key : d4,user : root,password : fuga}
+      """.stripMargin)
+
+    val dbs = conf.as[Map[String,DB]]
+
+    assert(dbs.size == 4)
+    assert(dbs("db1") == DB("db1","db1","root","hoge"))
+    assert(dbs("db2") == DB("k2","n2","root","fuga"))
+    assert(dbs("db3") == DB("db3","d3","root","fuga"))
+    assert(dbs("db4") == DB("d4","db4","root","fuga"))
+
+
+  }
+
 }
 
+case class DB(key : String,name : String,user : String, password : String)
 
 case class SimpleObject(name : String, age : Int)
 

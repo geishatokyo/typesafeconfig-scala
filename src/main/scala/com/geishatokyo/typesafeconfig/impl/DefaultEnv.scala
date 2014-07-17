@@ -4,12 +4,15 @@ import com.geishatokyo.typesafeconfig.{TSConfig, Env}
 import scala.reflect.runtime.universe._
 import java.util.Date
 import scala.concurrent.duration.Duration
-import com.typesafe.config.Config
+import com.typesafe.config.{ConfigValueFactory, ConfigValue, Config}
 import scala.collection.JavaConverters._
 import java.text.SimpleDateFormat
 
 /**
- * Created by takezoux2 on 2014/07/17.
+ *
+ * Defaul values and default deserializing.
+ *
+ *
  */
 class DefaultEnv extends Env{
 
@@ -96,7 +99,14 @@ class DefaultEnv extends Env{
         config.getConfig(key)
       }
       val v = keys(c).map(k => {
-        k -> mapObject(c.getConfig(k),t.typeArgs(1))
+        val c2 = c.getConfig(k)
+        // keyをnameフィールドとしてマップ可能にする
+        def addKey(conf : Config,key : String,v : String) = {
+          if(conf.hasPath(key)) conf
+          else conf.withValue(key,ConfigValueFactory.fromAnyRef(v))
+        }
+        val c3 = addKey(addKey(c2,"key",k),"name",k)
+        k -> mapObject(c3,t.typeArgs(1))
       }).toMap
       v
     }

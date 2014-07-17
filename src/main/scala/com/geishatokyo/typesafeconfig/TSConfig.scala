@@ -25,6 +25,8 @@ trait TSConfig {
     implicit val mirror = typeTag.mirror
     as(typeOf[T]).asInstanceOf[T]
   }
+
+
   def get[T : TypeTag] : Option[T] = {
     if(exists) {
       as[Option[T]]
