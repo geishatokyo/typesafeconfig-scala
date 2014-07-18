@@ -17,6 +17,7 @@ trait TSConfig {
   def ? = exists
   def exists : Boolean
   def keys : List[String]
+  def isEmpty = !exists
 
   def as(t : Type)(implicit mirror : Mirror) : Any
 

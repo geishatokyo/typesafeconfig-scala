@@ -21,4 +21,19 @@ class TSNone(env : Env) extends TSConfig {
     env.defaults.applyOrElse(tpe,(t : Type) => null)
   }
   def asList : List[TSConfig] = Nil
+
+  override def hashCode(): Int = 0
+
+  override def toString: String = {
+    "<none>"
+  }
+
+  override def equals(obj: scala.Any): Boolean = {
+    obj match{
+      case tsConf : TSConfig => {
+        tsConf.isEmpty
+      }
+      case _ => false
+    }
+  }
 }

@@ -53,6 +53,31 @@ case class TSConfigWithKey(config : Config,key : String)(implicit protected val 
     }
   }
 
+  override def toString: String = {
+    if(exists) config.atPath(key).toString
+    else "<none>"
+  }
+
+  override def hashCode(): Int = {
+    if(exists) config.atPath(key).hashCode()
+    else 0
+  }
+
+  override def equals(obj: scala.Any): Boolean = {
+    obj match{
+      case conf : TSConfigWithKey => {
+        if(conf.exists && this.exists){
+          conf.config.atPath(conf.key).equals(this.config.atPath(this.key))
+        }else false
+      }
+      case conf : TSConfigRoot => {
+        conf.equals(this)
+      }
+      case _ => {
+        false
+      }
+    }
+  }
 }
 
 case class TSConfigRoot(config : Config)(implicit protected val env : Env) extends TSConfig with AsSupport{
@@ -90,5 +115,29 @@ case class TSConfigRoot(config : Config)(implicit protected val env : Env) exten
 
   override def asList: List[TSConfig] = {
     Nil
+  }
+
+
+  override def toString: String = {
+    config.toString
+  }
+
+
+  override def hashCode(): Int = {
+    config.hashCode()
+  }
+
+  override def equals(obj: scala.Any): Boolean = {
+    obj match{
+      case conf : TSConfigRoot => {
+        this.config.equals(conf.config)
+      }
+      case conf : TSConfigWithKey => {
+        if(conf.exists){
+          conf.config.atPath(conf.key).equals(this.config)
+        }else false
+      }
+      case _ => false
+    }
   }
 }
