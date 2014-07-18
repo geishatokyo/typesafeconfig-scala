@@ -30,19 +30,16 @@ object TSConfigFactory extends TSConfigFactory{
   object dflt extends TSConfigFactory{
     override def parseString(str: String): TSConfig = {
       val conf = ConfigFactory.parseString(str)
-      conf.resolve()
-      TSConfigRoot(conf)
+      TSConfigRoot(conf.resolve())
     }
 
     override def parseFile(path: String): TSConfig = {
       val conf = ConfigFactory.parseFile(new File(path))
-      conf.resolve()
-      TSConfigRoot(conf)
+      TSConfigRoot(conf.resolve())
     }
     override def parseFile(file: File): TSConfig = {
       val conf = ConfigFactory.parseFile(file)
-      conf.resolve()
-      TSConfigRoot(conf)
+      TSConfigRoot(conf.resolve())
     }
 
     override def fromConfig(config: Config): TSConfig = {
@@ -51,8 +48,7 @@ object TSConfigFactory extends TSConfigFactory{
 
     override def fromStream(stream: InputStream): TSConfig = {
       val conf = ConfigFactory.parseReader(new InputStreamReader(stream))
-      conf.resolve()
-      TSConfigRoot(conf)
+      TSConfigRoot(conf.resolve())
     }
   }
 

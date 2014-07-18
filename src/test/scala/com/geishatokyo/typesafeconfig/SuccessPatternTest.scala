@@ -53,6 +53,17 @@ class SuccessPatternTest extends FlatSpec with Matchers {
 
   }
 
+  "Reference" should "be resolved" in {
+    val conf = TSConfigFactory.parseString(
+      """
+        |hoge = fuga,
+        |aaa = ${hoge}
+        |
+      """.stripMargin)
+
+    assert((conf / "aaa").asString == "fuga")
+  }
+
 }
 
 case class ABC(a : Int , b : String , c : Double = 10.0)
