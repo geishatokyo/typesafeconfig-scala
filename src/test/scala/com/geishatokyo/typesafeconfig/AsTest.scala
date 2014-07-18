@@ -130,6 +130,22 @@ class AsTest extends FlatSpec with Matchers {
 
   }
 
+  "Map[String,List[_]]" should "be mapped" in{
+    val conf = TSConfigFactory.parseString(
+      """
+        |a : [a,b,c],
+        |b : [hoge,fuga],
+        |c : [aaa]
+      """.stripMargin)
+
+    val map = conf.asMapOf[List[String]]
+    assert(map("a") == List("a","b","c"))
+    assert(map("b") == List("hoge","fuga"))
+    assert(map("c") == List("aaa"))
+
+
+  }
+
 }
 
 case class DB(key : String,name : String,user : String, password : String)

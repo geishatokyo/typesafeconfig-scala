@@ -29,7 +29,7 @@ trait AsSupport { self : TSConfig =>
     if(!exists) defaultValue
     else{
       try{
-        env.as(config,key).applyOrElse(tpe, (a : Type) => {
+        env.as(this).applyOrElse(tpe, (a : Type) => {
           defaultValue
         })
       }catch{

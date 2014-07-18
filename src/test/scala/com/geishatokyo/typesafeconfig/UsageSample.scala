@@ -37,7 +37,8 @@ class UsageSample extends FlatSpec with Matchers{
         |}
         |
       """.stripMargin)
-
+    println(conf / "roles")
+    assert( (conf / "roles").asList[String] == List("admin","user"))
     assert( (conf / "id" asInt) == 222)
     assert( (conf / "name" asString) == "Tom")
     assert( (conf / "avatar" / "head" asString) == "afro")

@@ -41,7 +41,7 @@ class SuccessPatternTest extends FlatSpec with Matchers {
   "Wrong type path" should "return any value.(not exception)" in {
     val conf = TSConfigFactory.parseString("""{notList:fuga}""")
 
-    assert((conf / "notList").asList[String] == Nil)
+    assert((conf / "notList").asList[String] == List())
   }
 
   "Case class" should "set LaxDefaults values to not exist fields" in {

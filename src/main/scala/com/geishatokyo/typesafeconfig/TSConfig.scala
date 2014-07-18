@@ -9,14 +9,12 @@ import scala.concurrent.duration.Duration
 /**
  * Created by takezoux2 on 2014/06/13.
  */
-trait TSConfig {
+trait TSConfig extends ValueGetter {
 
+  type Self = TSConfig
 
-  def /(key : String) : TSConfig
 
   def ? = exists
-  def exists : Boolean
-  def keys : List[String]
   def isEmpty = !exists
 
   def as(t : Type)(implicit mirror : Mirror) : Any
@@ -39,11 +37,6 @@ trait TSConfig {
 
   def asMapOf[T : TypeTag] : Map[String,T] = as[Map[String,T]]
 
-  def asInt = as[Int]
-  def asLong = as[Long]
-  def asString = as[String]
-  def asDouble = as[Double]
-  def asBoolean = as[Boolean]
 
   def asDate = as[Date]
   def duration = as[Duration]
