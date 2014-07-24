@@ -47,7 +47,6 @@ class DefaultEnv extends Env{
   }
 
 
-
   def as(c : ValueGetter)(implicit mirror: Mirror) : PartialFunction[Type,Any] = {
     case t if t =:= typeOf[Int] => c.asInt
     case t if t =:= typeOf[Long] => c.asLong
@@ -163,7 +162,7 @@ class DefaultEnv extends Env{
 
 
 
-  private def mapObject(config : ValueGetter,tpe : Type)(implicit mirror: Mirror) : Any = DefaultEnv.synchronized{
+  private def mapObject(config : ValueGetter,tpe : Type)(implicit mirror : Mirror) : Any = DefaultEnv.synchronized{
 
     // map classes
     val constructor = tpe.members.collectFirst({

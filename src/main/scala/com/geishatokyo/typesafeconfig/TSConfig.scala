@@ -32,10 +32,18 @@ trait TSConfig extends ValueGetter {
     }else None
   }
 
-  def asList[T : TypeTag] : List[T] = as[List[T]]
+  def asList[T : TypeTag] : List[T] = {
+    val typeTag = implicitly[TypeTag[T]]
+    implicit val mirror = typeTag.mirror
+    as(typeOf[List[T]])(mirror).asInstanceOf[List[T]]
+  }
   def asList : List[TSConfig]
 
-  def asMapOf[T : TypeTag] : Map[String,T] = as[Map[String,T]]
+  def asMapOf[T : TypeTag] : Map[String,T] = {
+    val typeTag = implicitly[TypeTag[T]]
+    implicit val mirror = typeTag.mirror
+    as(typeOf[Map[String,T]])(mirror).asInstanceOf[Map[String,T]]
+  }
 
 
   def asDate = as[Date]

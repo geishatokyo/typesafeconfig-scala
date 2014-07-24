@@ -18,7 +18,8 @@ trait AsSupport { self : TSConfig =>
   protected def env : Env
 
 
-  def as(tpe: Type)(implicit mirror: Mirror): Any = {
+  def as(tpe: Type)(implicit mirror: Mirror): Any = ReflectionLock.synchronized{
+
 
     if(tpe =:= typeOf[TSConfig]) return this
 
@@ -45,3 +46,5 @@ trait AsSupport { self : TSConfig =>
     }
   }
 }
+
+object ReflectionLock
