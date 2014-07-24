@@ -1,6 +1,6 @@
 package com.geishatokyo.typesafeconfig.impl
 
-import com.geishatokyo.typesafeconfig.{Env, TSConfig}
+import com.geishatokyo.typesafeconfig.{KeyNotFoundException, Env, TSConfig}
 import com.typesafe.config.{ConfigException, Config}
 import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
@@ -31,7 +31,7 @@ case class TSConfigWithKey(config : Config,key : String)(implicit protected val 
     if(exists){
       TSConfigWithKey(config.getConfig(this.key),key)
     }else{
-      env.none
+      new TSNone(key,env)
     }
   }
 
@@ -41,22 +41,22 @@ case class TSConfigWithKey(config : Config,key : String)(implicit protected val 
 
 
 
-  override def asInt: Int = env.tryOrDef(config.getInt(key))
+  override def asInt: Int = config.getInt(key)
 
-  override def asLong: Long = env.tryOrDef(config.getLong(key))
+  override def asLong: Long = config.getLong(key)
 
-  override def asString: String = env.tryOrDef(config.getString(key))
+  override def asString: String = config.getString(key)
 
-  override def asBoolean: Boolean = env.tryOrDef(config.getBoolean(key))
+  override def asBoolean: Boolean = config.getBoolean(key)
 
-  override def asDouble: Double = env.tryOrDef(config.getDouble(key))
+  override def asDouble: Double = config.getDouble(key)
 
 
-  def asIntList : List[Int] = env.tryOrDef(config.getIntList(key).asScala.toList.map(_.asInstanceOf[Int]))
-  def asLongList : List[Long] = env.tryOrDef(config.getLongList(key).asScala.toList.map(_.asInstanceOf[Long]))
-  def asStringList : List[String] = env.tryOrDef(config.getStringList(key).asScala.toList)
-  def asBooleanList : List[Boolean] = env.tryOrDef(config.getBooleanList(key).asScala.toList.map(_.asInstanceOf[Boolean]))
-  def asDoubleList : List[Double] = env.tryOrDef(config.getDoubleList(key).asScala.toList.map(_.asInstanceOf[Double]))
+  def asIntList : List[Int] = config.getIntList(key).asScala.toList.map(_.asInstanceOf[Int])
+  def asLongList : List[Long] = config.getLongList(key).asScala.toList.map(_.asInstanceOf[Long])
+  def asStringList : List[String] = config.getStringList(key).asScala.toList
+  def asBooleanList : List[Boolean] = config.getBooleanList(key).asScala.toList.map(_.asInstanceOf[Boolean])
+  def asDoubleList : List[Double] = config.getDoubleList(key).asScala.toList.map(_.asInstanceOf[Double])
 
   override def asList: List[TSConfig] = {
     if(exists){
@@ -131,7 +131,7 @@ case class TSConfigRoot(config : Config)(implicit protected val env : Env) exten
     if(exists){
       TSConfigWithKey(config,key)
     }else{
-      env.none
+      new TSNone(key,env)
     }
   }
 
@@ -142,15 +142,15 @@ case class TSConfigRoot(config : Config)(implicit protected val env : Env) exten
 
 
 
-  override def asInt: Int = env.getDefault
+  override def asInt: Int = throw new KeyNotFoundException("<root>")
 
-  override def asLong: Long = env.getDefault
+  override def asLong: Long = throw new KeyNotFoundException("<root>")
 
-  override def asString: String = env.getDefault
+  override def asString: String = throw new KeyNotFoundException("<root>")
 
-  override def asBoolean: Boolean = env.getDefault
+  override def asBoolean: Boolean = throw new KeyNotFoundException("<root>")
 
-  override def asDouble: Double = env.getDefault
+  override def asDouble: Double = throw new KeyNotFoundException("<root>")
 
   override def asList: List[TSConfig] = {
     List(this)

@@ -1,37 +1,38 @@
 package com.geishatokyo.typesafeconfig.impl
 
 import scala.reflect.runtime.universe._
-import com.geishatokyo.typesafeconfig.{Env, TSConfig}
+import com.geishatokyo.typesafeconfig.{KeyNotFoundException, Env, TSConfig}
 import scala.concurrent.duration.Duration
 import java.util.Date
 import scala.reflect.runtime.universe._
+import com.typesafe.config.Config
 
 /**
  * Created by takezoux2 on 2014/06/13.
  */
-class TSNone(env : Env) extends TSConfig {
+case class TSNone(key : String,env : Env) extends TSConfig with AsSupport {
 
 
-  def /(key : String) : TSConfig = this
+  def /(key : String) : TSConfig = new TSNone(key,env)
 
   def exists : Boolean = false
   def keys : List[String] = Nil
 
 
-  def as(tpe : Type)(implicit mirror : Mirror) : Any = {
-    env.defaults.applyOrElse(tpe,(t : Type) => null)
-  }
+  override def config: Config = null
+
+
   def asList : List[TSConfig] = Nil
 
-  override def asInt: Int = env.getDefault[Int]
+  override def asInt: Int = throw new KeyNotFoundException(key)
 
-  override def asLong: Long = env.getDefault[Long]
+  override def asLong: Long = throw new KeyNotFoundException(key)
 
-  override def asString: String = env.getDefault[String]
+  override def asString: String = throw new KeyNotFoundException(key)
 
-  override def asBoolean: Boolean = env.getDefault[Boolean]
+  override def asBoolean: Boolean = throw new KeyNotFoundException(key)
 
-  override def asDouble: Double = env.getDefault[Double]
+  override def asDouble: Double = throw new KeyNotFoundException(key)
 
   def asIntList : List[Int] = Nil
   def asLongList : List[Long] = Nil

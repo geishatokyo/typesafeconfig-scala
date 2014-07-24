@@ -1,7 +1,7 @@
 package com.geishatokyo.typesafeconfig
 
 import org.scalatest.{Matchers, FlatSpec}
-
+import com.typesafe.config.ConfigException
 
 
 /**
@@ -86,7 +86,7 @@ class AsTest extends FlatSpec with Matchers {
         |list : {
         |  weapon : 1,
         |  armor : [1,2,3]
-        |  users : [{name : aaa},{name : bbb}]
+        |  users : [{name : aaa,age : 20},{name : bbb,age : 11}]
         |}
       """.stripMargin)
 
@@ -98,10 +98,14 @@ class AsTest extends FlatSpec with Matchers {
     assert( (conf / "list" / "armorrrr").asList[Int] == List())
 
     // Not list
-    assert( (conf / "list" / "weapon").asList[Int] == List())
-    assert( (conf / "list" / "weapon").as[List[Int]] == List())
+    intercept[ConfigException.WrongType] {
+      (conf / "list" / "weapon").asList[Int]
+    }
+    intercept[ConfigException.WrongType] {
+      (conf / "list" / "weapon").as[List[Int]]
+    }
 
-    assert( (conf / "list" / "users").as[List[SimpleObject]] == List(SimpleObject("aaa",0),SimpleObject("bbb",0)))
+    assert( (conf / "list" / "users").as[List[SimpleObject]] == List(SimpleObject("aaa",20),SimpleObject("bbb",11)))
 
   }
 

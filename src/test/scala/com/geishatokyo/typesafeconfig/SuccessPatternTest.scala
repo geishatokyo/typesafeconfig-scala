@@ -2,6 +2,7 @@ package com.geishatokyo.typesafeconfig
 
 import org.scalatest.{Matchers, FlatSpec}
 import com.geishatokyo.typesafeconfig.impl.DefaultEnv
+import com.typesafe.config.ConfigException
 
 /**
  * Lax=緩い値解決をするlax系クラスのテスト
@@ -16,14 +17,12 @@ class SuccessPatternTest extends FlatSpec with Matchers {
     assert((conf / "not" / "exists" exists) == false)
 
   }
-  "Not exist path" should "cast as default values" in {
+  "Not exist path" should "get as Nones" in {
     val conf = TSConfigFactory.parseString("""{hoge:fuga}""")
     val v = conf / "not" / "exists"
-    assert(v.asInt == DefaultEnv.int)
-    assert(v.asLong == DefaultEnv.long)
-    assert(v.asString == DefaultEnv.string)
-    assert(v.asBoolean == DefaultEnv.boolean)
-    assert(v.asDouble == DefaultEnv.double)
+    assert(v.get[Int] == None)
+    assert(v.get[Long] == None)
+    assert(v.get[String] == None)
   }
 
   "Not exist " should "be empty list" in {
@@ -41,16 +40,37 @@ class SuccessPatternTest extends FlatSpec with Matchers {
   "Wrong type path" should "return any value.(not exception)" in {
     val conf = TSConfigFactory.parseString("""{notList:fuga}""")
 
-    assert((conf / "notList").asList[String] == List())
+    try {
+      (conf / "notList").asList[String]
+      fail()
+    }catch{
+      case e : ConfigException.WrongType => {
+        // ok
+      }
+    }
   }
 
-  "Case class" should "set LaxDefaults values to not exist fields" in {
-    DefaultEnv.string = "Default string"
+  "Case class" should "set default values to not exist fields" in {
     val conf = TSConfigFactory.parseString("""{a:2121}""")
 
     val a = conf.as[ABC]
-    assert(a == ABC(2121,DefaultEnv.string,10.0))
+    assert(a == ABC(2121,"b",10.0))
 
+  }
+
+  "Case class" should "throw NoValueException if parameter is not enouph" in {
+    val conf = TSConfigFactory.parseString("""{aaaa:2121}""")
+
+    try {
+      val a = conf.as[ABC]
+      fail()
+    }catch{
+      case e : NoValueException => {
+        assert(e.paramName == "a")
+        // OK
+
+      }
+    }
   }
 
   "Reference" should "be resolved" in {
@@ -66,4 +86,4 @@ class SuccessPatternTest extends FlatSpec with Matchers {
 
 }
 
-case class ABC(a : Int , b : String , c : Double = 10.0)
+case class ABC(a : Int , b : String = "b", c : Double = 10.0)

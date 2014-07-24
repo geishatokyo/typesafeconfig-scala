@@ -1,6 +1,6 @@
 package com.geishatokyo.typesafeconfig.impl
 
-import com.geishatokyo.typesafeconfig.{ValueGetter, TSConfig, Env}
+import com.geishatokyo.typesafeconfig.{NoValueException, ValueGetter, TSConfig, Env}
 import scala.reflect.runtime.universe._
 import java.util.Date
 import scala.concurrent.duration.Duration
@@ -16,35 +16,6 @@ import java.text.SimpleDateFormat
  */
 class DefaultEnv extends Env{
 
-  var int = 0
-  var long = 0L
-  var string = ""
-  var double = 0.0
-  var boolean = false
-  var date : Date = new Date(0)
-
-  def defaults : PartialFunction[Type,Any] = {
-    case t if t =:= typeOf[Int] => int
-    case t if t =:= typeOf[Long] => long
-    case t if t =:= typeOf[String] => string
-    case t if t =:= typeOf[Double] => double
-    case t if t =:= typeOf[Boolean] => boolean
-    case t if t =:= typeOf[Date] => date
-    case t if t =:= typeOf[Duration] => Duration.fromNanos(0)
-    case t => genericDefault(t)
-  }
-
-  private def genericDefault(t : Type) = t match{
-    case t if t <:< typeOf[List[_]] => Nil
-    case t if t <:< typeOf[Set[_]] => Set()
-    case t if t <:< typeOf[Seq[_]] => Seq()
-    case t if t <:< typeOf[Map[_,_]] => Map.empty
-    case t if t <:< typeOf[Option[_]] => None
-    case t => {
-      //println("Default of " + t)
-      null
-    }
-  }
 
 
   def as(c : ValueGetter)(implicit mirror: Mirror) : PartialFunction[Type,Any] = {
@@ -202,7 +173,10 @@ class DefaultEnv extends Env{
         def defaultValue = {
           getDefaultValue(index) match{
             case Some(v) => v
-            case None => defaults.apply(p.typeSignature)
+            case None => {
+              if(p.typeSignature <:< typeOf[Option[_]]) None
+              else throw new NoValueException(tpe.toString,name)
+            }
           }
         }
 

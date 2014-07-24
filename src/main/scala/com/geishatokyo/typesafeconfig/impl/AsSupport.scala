@@ -1,6 +1,6 @@
 package com.geishatokyo.typesafeconfig.impl
 
-import com.geishatokyo.typesafeconfig.{Env, TSConfig}
+import com.geishatokyo.typesafeconfig.{UnsupportedTypeException, KeyNotFoundException, Env, TSConfig}
 import scala.reflect.runtime.universe._
 import com.typesafe.config.{ConfigException, Config}
 import scala.collection.JavaConverters._
@@ -17,32 +17,31 @@ trait AsSupport { self : TSConfig =>
 
   protected def env : Env
 
+  protected def optionTest(tpe : Type) = {
+    tpe match {
+      case t if t <:< typeOf[Option[_]] => Some(None)
+      case t if t <:< typeOf[List[_]] => Some(Nil)
+      case t if t <:< typeOf[Set[_]] => Some(Set())
+      case t if t <:< typeOf[Map[_, _]] => Some(Map())
+      case t if t <:< typeOf[Seq[_]] => Some(Seq())
+      case _ => None
+    }
+  }
+
 
   def as(tpe: Type)(implicit mirror: Mirror): Any = ReflectionLock.synchronized{
 
 
     if(tpe =:= typeOf[TSConfig]) return this
 
-    def defaultValue() = {
-      env.defaults.applyOrElse(tpe, (t : Type) => null)
-    }
-
-    if(!exists) defaultValue
-    else{
-      try{
-        env.as(this).applyOrElse(tpe, (a : Type) => {
-          defaultValue
-        })
-      }catch{
-        case e : ConfigException => {
-          println(e.getMessage)
-          defaultValue
-        }
-        case e : Throwable => {
-          e.printStackTrace()
-          defaultValue()
-        }
-      }
+    if(!exists) {
+      optionTest(tpe).getOrElse({
+        throw new KeyNotFoundException(key)
+      })
+    }else{
+      env.as(this).applyOrElse(tpe, (a: Type) => {
+        throw new UnsupportedTypeException(a.toString)
+      })
     }
   }
 }
