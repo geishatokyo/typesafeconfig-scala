@@ -25,7 +25,8 @@ trait TSConfig extends ValueGetter {
 
   def get[T : TypeTag] : Option[T] = {
     if(exists) {
-      as[Option[T]]
+      implicit val mirror = getMirror(implicitly[TypeTag[T]])
+      Some(as(typeOf[T]).asInstanceOf[T])
     }else None
   }
 
@@ -40,12 +41,16 @@ trait TSConfig extends ValueGetter {
     as(typeOf[Map[String,T]])(mirror).asInstanceOf[Map[String,T]]
   }
 
-
   def asDate = as[Date]
   def duration = as[Duration]
 
   protected def getMirror(t : TypeTag[_]) = {
-    runtimeMirror(Thread.currentThread().getContextClassLoader)
+    if(Thread.currentThread().getContextClassLoader != null) {
+      // First try to use context class loader.
+      runtimeMirror(Thread.currentThread().getContextClassLoader)
+    }else{
+      t.mirror
+    }
   }
 
 }
