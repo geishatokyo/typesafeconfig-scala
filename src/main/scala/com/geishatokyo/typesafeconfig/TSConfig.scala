@@ -13,18 +13,15 @@ trait TSConfig extends ValueGetter {
 
   type Self = TSConfig
 
-
   def ? = exists
   def isEmpty = !exists
 
   def as(t : Type)(implicit mirror : Mirror) : Any
 
   def as[T : TypeTag] : T = {
-    val typeTag = implicitly[TypeTag[T]]
-    implicit val mirror = typeTag.mirror
+    implicit val mirror = getMirror(implicitly[TypeTag[T]])
     as(typeOf[T]).asInstanceOf[T]
   }
-
 
   def get[T : TypeTag] : Option[T] = {
     if(exists) {
@@ -33,15 +30,13 @@ trait TSConfig extends ValueGetter {
   }
 
   def asList[T : TypeTag] : List[T] = {
-    val typeTag = implicitly[TypeTag[T]]
-    implicit val mirror = typeTag.mirror
+    implicit val mirror = getMirror(implicitly[TypeTag[T]])
     as(typeOf[List[T]])(mirror).asInstanceOf[List[T]]
   }
   def asList : List[TSConfig]
 
   def asMapOf[T : TypeTag] : Map[String,T] = {
-    val typeTag = implicitly[TypeTag[T]]
-    implicit val mirror = typeTag.mirror
+    implicit val mirror = getMirror(implicitly[TypeTag[T]])
     as(typeOf[Map[String,T]])(mirror).asInstanceOf[Map[String,T]]
   }
 
@@ -49,6 +44,9 @@ trait TSConfig extends ValueGetter {
   def asDate = as[Date]
   def duration = as[Duration]
 
+  protected def getMirror(t : TypeTag[_]) = {
+    runtimeMirror(Thread.currentThread().getContextClassLoader)
+  }
 
 }
 

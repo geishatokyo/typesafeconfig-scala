@@ -180,7 +180,6 @@ class DefaultEnv extends Env{
           }
         }
 
-
         if(v.exists && pf.isDefinedAt(p.typeSignature)) {
           try{
             as(v).apply(p.typeSignature)
