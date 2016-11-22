@@ -1,7 +1,8 @@
 package com.geishatokyo.typesafeconfig.impl
 
-import com.geishatokyo.typesafeconfig.{KeyNotFoundException, Env, TSConfig}
-import com.typesafe.config.{ConfigException, Config}
+import com.geishatokyo.typesafeconfig.{ValueType, KeyNotFoundException, Env, TSConfig}
+import com.typesafe.config.ConfigException.WrongType
+import com.typesafe.config.{ConfigValueType, ConfigException, Config}
 import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
 import scala.collection.JavaConverters._
@@ -12,6 +13,33 @@ import scala.collection.JavaConverters._
  * Created by takezoux2 on 2014/06/13.
  */
 case class TSConfigWithKey(config : Config,key : String)(implicit protected val env : Env) extends TSConfig with AsSupport{
+
+
+  override lazy val valueType = {
+    if(config.hasPath(key)){
+      try{
+        if(config.getObject(key).valueType() == ConfigValueType.OBJECT){
+          ValueType.Object
+        }else{
+          ValueType.AnyValue
+        }
+      }catch{
+        case e: WrongType => {
+          ValueType.List
+        }
+      }
+    }else{
+      ValueType.None
+    }
+  }
+
+  override def rawConfig = {
+    if(valueType == ValueType.Object){
+      config.getConfig(this.key)
+    }else{
+      null
+    }
+  }
 
   def keys = {
     if(exists) {
@@ -105,11 +133,36 @@ case class TSConfigWithKey(config : Config,key : String)(implicit protected val 
       }
     }
   }
+
+  override def or(other: TSConfig) = {
+
+    (this.valueType, other.valueType) match{
+      case (ValueType.Object, ValueType.Object) => {
+        TSConfigRoot(this.rawConfig.withFallback(other.rawConfig))
+      }
+      case (ValueType.List, ValueType.List) => {
+        this
+      }
+      case (ValueType.List, _ ) => {
+        this
+      }
+      case (ValueType.Object, _) => {
+        this
+      }
+      case (ValueType.AnyValue, _) => {
+        this
+      }
+      case (ValueType.None, _) => {
+        other
+      }
+    }
+  }
 }
 
 case class TSConfigRoot(config : Config)(implicit protected val env : Env) extends TSConfig with AsSupport{
 
 
+  override def rawConfig = config
 
   override def key: String = ""
 
@@ -185,4 +238,15 @@ case class TSConfigRoot(config : Config)(implicit protected val env : Env) exten
       case _ => false
     }
   }
+
+  override def or(other: TSConfig) = {
+    if(other.rawConfig != null){
+      new TSConfigRoot(this.config.withFallback(other.rawConfig))
+    }else{
+      this
+    }
+  }
+
+  override def valueType = ValueType.Object
+
 }

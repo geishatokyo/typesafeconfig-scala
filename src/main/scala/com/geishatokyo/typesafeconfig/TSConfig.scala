@@ -1,5 +1,7 @@
 package com.geishatokyo.typesafeconfig
 
+import com.typesafe.config.Config
+
 import scala.reflect._
 import scala.reflect.runtime._
 import scala.reflect.runtime.universe._
@@ -12,6 +14,8 @@ import scala.concurrent.duration.Duration
 trait TSConfig extends ValueGetter {
 
   type Self = TSConfig
+
+  def rawConfig: Config
 
   def ? = exists
   def isEmpty = !exists
@@ -52,6 +56,11 @@ trait TSConfig extends ValueGetter {
       t.mirror
     }
   }
+
+  def or(other: TSConfig) : TSConfig
+
+
+  def valueType : ValueType
 
 }
 

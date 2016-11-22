@@ -1,7 +1,7 @@
 package com.geishatokyo.typesafeconfig.impl
 
 import scala.reflect.runtime.universe._
-import com.geishatokyo.typesafeconfig.{KeyNotFoundException, Env, TSConfig}
+import com.geishatokyo.typesafeconfig.{ValueType, KeyNotFoundException, Env, TSConfig}
 import scala.concurrent.duration.Duration
 import java.util.Date
 import scala.reflect.runtime.universe._
@@ -18,7 +18,7 @@ case class TSNone(key : String,env : Env) extends TSConfig with AsSupport {
   def exists : Boolean = false
   def keys : List[String] = Nil
 
-
+  override def rawConfig = config
   override def config: Config = null
 
 
@@ -53,5 +53,11 @@ case class TSNone(key : String,env : Env) extends TSConfig with AsSupport {
       }
       case _ => false
     }
+  }
+
+  override def or(other: TSConfig) = other
+
+  override def valueType = {
+    ValueType.None
   }
 }
