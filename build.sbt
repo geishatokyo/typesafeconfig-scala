@@ -11,7 +11,7 @@ scalaVersion := "2.11.8"
 crossScalaVersions := List("2.11.8","2.12.0")
 
 libraryDependencies ++= Seq(
-  "com.typesafe" % "config" % "1.3.1",
+  "com.typesafe" % "config" % "1.3.1" % "provided",
   "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 )
 
