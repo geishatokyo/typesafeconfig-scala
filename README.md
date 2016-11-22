@@ -69,7 +69,6 @@ Map as such
 
 See test codes.
 
-
 # License
 
 MIT License
